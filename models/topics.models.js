@@ -3,6 +3,6 @@ const format = require("pg-format");
 
 exports.fetchTopics = () => {
   return db.query(`SELECT * FROM topics;`).then((results) => {
-    return results;
+    return results.rows;
   });
 };
