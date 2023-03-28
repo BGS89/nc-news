@@ -10,7 +10,7 @@ exports.fetchArticle = (articleId) => {
     )
     .then((results) => {
       if (!results.rows.length) {
-        return Promise.reject({ Message: "ID not found", status: 404 });
+        return Promise.reject({ message: "ID not found", status: 404 });
       }
       return results.rows[0];
     });

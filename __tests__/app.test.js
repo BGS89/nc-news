@@ -65,4 +65,12 @@ describe("/api/articles/:article_id", () => {
         expect(body.message).toBe("Invalid input");
       });
   });
+  test("Status 404: responds with an error message when passed an unknown article ID", () => {
+    return request(app)
+      .get("/api/articles/999")
+      .expect(404)
+      .then(({ body }) => {
+        expect(body.message).toBe("ID not found");
+      });
+  });
 });

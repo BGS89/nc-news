@@ -10,7 +10,18 @@ app.get("/api/articles/:article_id", getArticleById);
 app.use((err, request, response, next) => {
   if (err.code === "22P02") {
     response.status(400).send({ message: "Invalid input" });
-  } else response.status(500).send({ message: "Internal serveeer error" });
+  } else {
+    next(err);
+  }
+});
+
+app.use((err, request, response, next) => {
+  const { status, message } = err;
+  if (status && message) {
+    response.status(status).send({ message });
+  } else {
+    next(err);
+  }
 });
 
 app.use("/*", (request, response) => {
@@ -19,4 +30,4 @@ app.use("/*", (request, response) => {
 
 module.exports = app;
 
-// '22P02'
+// .NEXT
