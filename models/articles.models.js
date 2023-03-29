@@ -30,3 +30,19 @@ exports.fetchArticleById = (articleId) => {
       return results.rows[0];
     });
 };
+
+exports.fetchArticleComments = (articleId) => {
+  return db
+    .query(
+      `SELECT * FROM comments
+    WHERE article_id = $1
+    ORDER BY created_at DESC;`,
+      [articleId]
+    )
+    .then((results) => {
+      if (!results.rows.length) {
+        return Promise.reject({ message: "No comments found", status: 404 });
+      }
+      return results.rows;
+    });
+};
