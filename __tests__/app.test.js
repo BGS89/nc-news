@@ -121,6 +121,7 @@ describe("/api/articles/:article_id/comments", () => {
       .then(({ body }) => {
         const { comments } = body;
         expect(comments).toBeInstanceOf(Array);
+        expect(comments).toHaveLength(11);
         comments.forEach((comment) => {
           expect(comment).toMatchObject({
             comment_id: expect.any(Number),
@@ -128,7 +129,7 @@ describe("/api/articles/:article_id/comments", () => {
             created_at: expect.any(String),
             author: expect.any(String),
             body: expect.any(String),
-            article_id: expect.any(Number),
+            article_id: 1,
           });
         });
       });
@@ -156,6 +157,14 @@ describe("/api/articles/:article_id/comments", () => {
   test("Status 404: responds with an error message when passed an unknown article ID", () => {
     return request(app)
       .get("/api/articles/999/comments")
+      .expect(404)
+      .then(({ body }) => {
+        expect(body.message).toBe("No comments found");
+      });
+  });
+  test("Status 404: responds with error message when article_id is valid but no comments found ", () => {
+    return request(app)
+      .get("/api/articles/2/comments")
       .expect(404)
       .then(({ body }) => {
         expect(body.message).toBe("No comments found");
