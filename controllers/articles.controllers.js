@@ -1,9 +1,10 @@
-const { response } = require("../app");
+const { response, request } = require("../app");
 const {
   fetchArticleById,
   fetchArticles,
   fetchArticleComments,
   checkArticleExists,
+  addComment,
 } = require("../models/articles.models.js");
 
 exports.getArticles = (request, response) => {
@@ -35,6 +36,25 @@ exports.getArticleComments = (request, response, next) => {
           } else {
             response.status(200).send({ comments });
           }
+        })
+        .catch((err) => {
+          next(err);
+        });
+    })
+    .catch((err) => {
+      next(err);
+    });
+};
+
+exports.postArticleComment = (request, response, next) => {
+  const { article_id } = request.params;
+  const commentToPost = request.body;
+
+  checkArticleExists(article_id)
+    .then(() => {
+      addComment(commentToPost, article_id)
+        .then((comment) => {
+          response.status(201).send({ comment });
         })
         .catch((err) => {
           next(err);

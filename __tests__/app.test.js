@@ -3,6 +3,7 @@ const request = require("supertest");
 const connection = require("../db/connection");
 const seed = require("../db/seeds/seed");
 const testData = require("../db/data/test-data");
+const { response } = require("../app.js");
 
 beforeEach(() => seed(testData));
 afterAll(() => connection.end());
@@ -154,14 +155,6 @@ describe("/api/articles/:article_id/comments", () => {
         expect(body.message).toBe("Invalid input");
       });
   });
-  test("Status 404: responds with an error message when passed an unknown article ID", () => {
-    return request(app)
-      .get("/api/articles/999999/comments")
-      .expect(404)
-      .then(({ body }) => {
-        expect(body.message).toBe("ID not found");
-      });
-  });
   test("Get 200: responds with empty array when article_id is valid but no comments found ", () => {
     return request(app)
       .get("/api/articles/2/comments")
@@ -170,6 +163,59 @@ describe("/api/articles/:article_id/comments", () => {
         const { comments } = body;
         expect(comments).toBeInstanceOf(Array);
         expect(comments).toHaveLength(0);
+      });
+  });
+  test("Status 404: responds with an error message when passed an unknown article ID", () => {
+    return request(app)
+      .get("/api/articles/999999/comments")
+      .expect(404)
+      .then(({ body }) => {
+        expect(body.message).toBe("ID not found");
+      });
+  });
+});
+
+describe("/api/articles/:article_id/comments", () => {
+  test("POST 201: add a comment to given article comments and respond with newly created comment", () => {
+    return request(app)
+      .post("/api/articles/1/comments")
+      .send({
+        username: "icellusedkars",
+        body: "Am I the batman?",
+      })
+      .expect(201)
+      .then(({ body }) => {
+        expect(body.comment).toMatchObject({
+          comment_id: expect.any(Number),
+          body: "Am I the batman?",
+          article_id: 1,
+          author: expect.any(String),
+          votes: expect.any(Number),
+          created_at: expect.any(String),
+        });
+      });
+  });
+  test("Status 400: reposnds with an error message when missing required information", () => {
+    return request(app)
+      .post("/api/articles/1/comments")
+      .send({
+        username: "user1234",
+      })
+      .expect(400)
+      .then(({ body }) => {
+        expect(body.message).toBe("Missing required information");
+      });
+  });
+  test("Status 404: responds with an error message when passed an unknown article ID", () => {
+    return request(app)
+      .post("/api/articles/999999/comments")
+      .send({
+        username: "icellusedkars",
+        body: "Am I the batman?",
+      })
+      .expect(404)
+      .then(({ body }) => {
+        expect(body.message).toBe("ID not found");
       });
   });
 });
