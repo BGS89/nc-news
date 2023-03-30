@@ -215,27 +215,27 @@ describe("/api/articles/:article_id/comments", () => {
         });
       });
   });
-  test("Status 400: reposnds with an error message when missing required information", () => {
+  test("Status 40: reposnds with an error message when missing required information", () => {
     return request(app)
       .post("/api/articles/1/comments")
       .send({
-        username: "user1234",
+        username: "icellusedkars",
       })
       .expect(400)
       .then(({ body }) => {
         expect(body.message).toBe("Missing required information");
       });
   });
-  test("Status 400: reposnds with an error message when given wrong username information", () => {
+  test("Status 404: reposnds with an error message when given wrong username information", () => {
     return request(app)
       .post("/api/articles/1/comments")
       .send({
         username: "user1234",
         body: "username here is wrong",
       })
-      .expect(400)
+      .expect(404)
       .then(({ body }) => {
-        expect(body.message).toBe("Missing required information");
+        expect(body.message).toBe("Username not found");
       });
   });
   test("Status 404: responds with an error message when passed an unknown article ID", () => {
