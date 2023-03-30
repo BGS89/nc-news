@@ -57,3 +57,20 @@ exports.fetchArticleComments = (articleId) => {
       return results.rows;
     });
 };
+
+exports.addComment = (comment, articleId) => {
+  const { username, body } = comment;
+
+  return db
+    .query(
+      `INSERT INTO comments
+    (author, body, article_id)
+    VALUES
+    ($1, $2, $3)
+    RETURNING *;`,
+      [username, body, articleId]
+    )
+    .then((postedComment) => {
+      return postedComment.rows[0];
+    });
+};
