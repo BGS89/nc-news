@@ -3,6 +3,7 @@ const {
   fetchArticleById,
   fetchArticles,
   fetchArticleComments,
+  checkArticleExists,
 } = require("../models/articles.models.js");
 
 exports.getArticles = (request, response) => {
@@ -24,9 +25,20 @@ exports.getArticleById = (request, response, next) => {
 
 exports.getArticleComments = (request, response, next) => {
   const { article_id } = request.params;
-  fetchArticleComments(article_id)
-    .then((comments) => {
-      response.status(200).send({ comments: comments });
+
+  checkArticleExists(article_id)
+    .then(() => {
+      fetchArticleComments(article_id)
+        .then((comments) => {
+          if (!comments.length) {
+            response.status(200).send({ comments: [] });
+          } else {
+            response.status(200).send({ comments });
+          }
+        })
+        .catch((err) => {
+          next(err);
+        });
     })
     .catch((err) => {
       next(err);

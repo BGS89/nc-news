@@ -31,6 +31,20 @@ exports.fetchArticleById = (articleId) => {
     });
 };
 
+exports.checkArticleExists = (articleId) => {
+  return db
+    .query(
+      `SELECT * FROM articles
+        WHERE article_id = $1;`,
+      [articleId]
+    )
+    .then((results) => {
+      if (!results.rows.length) {
+        return Promise.reject({ message: "ID not found", status: 404 });
+      }
+    });
+};
+
 exports.fetchArticleComments = (articleId) => {
   return db
     .query(
@@ -40,9 +54,6 @@ exports.fetchArticleComments = (articleId) => {
       [articleId]
     )
     .then((results) => {
-      if (!results.rows.length) {
-        return Promise.reject({ message: "No comments found", status: 404 });
-      }
       return results.rows;
     });
 };

@@ -156,18 +156,20 @@ describe("/api/articles/:article_id/comments", () => {
   });
   test("Status 404: responds with an error message when passed an unknown article ID", () => {
     return request(app)
-      .get("/api/articles/999/comments")
+      .get("/api/articles/999999/comments")
       .expect(404)
       .then(({ body }) => {
-        expect(body.message).toBe("No comments found");
+        expect(body.message).toBe("ID not found");
       });
   });
-  test("Status 404: responds with error message when article_id is valid but no comments found ", () => {
+  test("Get 200: responds with empty array when article_id is valid but no comments found ", () => {
     return request(app)
       .get("/api/articles/2/comments")
-      .expect(404)
+      .expect(200)
       .then(({ body }) => {
-        expect(body.message).toBe("No comments found");
+        const { comments } = body;
+        expect(comments).toBeInstanceOf(Array);
+        expect(comments).toHaveLength(0);
       });
   });
 });
