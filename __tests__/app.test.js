@@ -195,11 +195,43 @@ describe("/api/articles/:article_id/comments", () => {
         });
       });
   });
+  test("Post 201: add a comment to given article comments ignoring extra keys in input body", () => {
+    return request(app)
+      .post("/api/articles/1/comments")
+      .send({
+        username: "icellusedkars",
+        body: "too many keys",
+        rankdomKey: 12,
+      })
+      .expect(201)
+      .then(({ body }) => {
+        expect(body.comment).toMatchObject({
+          comment_id: expect.any(Number),
+          body: "too many keys",
+          article_id: 1,
+          author: expect.any(String),
+          votes: expect.any(Number),
+          created_at: expect.any(String),
+        });
+      });
+  });
   test("Status 400: reposnds with an error message when missing required information", () => {
     return request(app)
       .post("/api/articles/1/comments")
       .send({
         username: "user1234",
+      })
+      .expect(400)
+      .then(({ body }) => {
+        expect(body.message).toBe("Missing required information");
+      });
+  });
+  test("Status 400: reposnds with an error message when given wrong username information", () => {
+    return request(app)
+      .post("/api/articles/1/comments")
+      .send({
+        username: "user1234",
+        body: "username here is wrong",
       })
       .expect(400)
       .then(({ body }) => {
@@ -216,6 +248,18 @@ describe("/api/articles/:article_id/comments", () => {
       .expect(404)
       .then(({ body }) => {
         expect(body.message).toBe("ID not found");
+      });
+  });
+  test("Status 400: responds with an error message when passed a bad article ID", () => {
+    return request(app)
+      .post("/api/articles/notAnID/comments")
+      .send({
+        username: "icellusedkars",
+        body: "Am I the batman?",
+      })
+      .expect(400)
+      .then(({ body }) => {
+        expect(body.message).toBe("Invalid input");
       });
   });
 });

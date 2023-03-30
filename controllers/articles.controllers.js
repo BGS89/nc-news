@@ -29,17 +29,14 @@ exports.getArticleComments = (request, response, next) => {
 
   checkArticleExists(article_id)
     .then(() => {
-      fetchArticleComments(article_id)
-        .then((comments) => {
-          if (!comments.length) {
-            response.status(200).send({ comments: [] });
-          } else {
-            response.status(200).send({ comments });
-          }
-        })
-        .catch((err) => {
-          next(err);
-        });
+      return fetchArticleComments(article_id);
+    })
+    .then((comments) => {
+      if (!comments.length) {
+        response.status(200).send({ comments: [] });
+      } else {
+        response.status(200).send({ comments });
+      }
     })
     .catch((err) => {
       next(err);
@@ -52,13 +49,10 @@ exports.postArticleComment = (request, response, next) => {
 
   checkArticleExists(article_id)
     .then(() => {
-      addComment(commentToPost, article_id)
-        .then((comment) => {
-          response.status(201).send({ comment });
-        })
-        .catch((err) => {
-          next(err);
-        });
+      return addComment(commentToPost, article_id);
+    })
+    .then((comment) => {
+      response.status(201).send({ comment });
     })
     .catch((err) => {
       next(err);
