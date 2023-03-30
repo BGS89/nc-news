@@ -30,3 +30,30 @@ exports.fetchArticleById = (articleId) => {
       return results.rows[0];
     });
 };
+
+exports.checkArticleExists = (articleId) => {
+  return db
+    .query(
+      `SELECT * FROM articles
+        WHERE article_id = $1;`,
+      [articleId]
+    )
+    .then((results) => {
+      if (!results.rows.length) {
+        return Promise.reject({ message: "ID not found", status: 404 });
+      }
+    });
+};
+
+exports.fetchArticleComments = (articleId) => {
+  return db
+    .query(
+      `SELECT * FROM comments
+    WHERE article_id = $1
+    ORDER BY created_at DESC;`,
+      [articleId]
+    )
+    .then((results) => {
+      return results.rows;
+    });
+};

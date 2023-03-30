@@ -112,3 +112,64 @@ describe("/api/articles/:article_id", () => {
       });
   });
 });
+
+describe("/api/articles/:article_id/comments", () => {
+  test("GET 200: responds with an array of comments for the given article_id with the correct properties", () => {
+    return request(app)
+      .get("/api/articles/1/comments")
+      .expect(200)
+      .then(({ body }) => {
+        const { comments } = body;
+        expect(comments).toBeInstanceOf(Array);
+        expect(comments).toHaveLength(11);
+        comments.forEach((comment) => {
+          expect(comment).toMatchObject({
+            comment_id: expect.any(Number),
+            votes: expect.any(Number),
+            created_at: expect.any(String),
+            author: expect.any(String),
+            body: expect.any(String),
+            article_id: 1,
+          });
+        });
+      });
+  });
+  test("GET 200: responds with an array of comments with most recent comments first", () => {
+    return request(app)
+      .get("/api/articles/1/comments")
+      .expect(200)
+      .then(({ body }) => {
+        const { comments } = body;
+        const sortedComments = [...comments].sort(
+          (a, b) => new Date(b.created_at) - new Date(a.created_at)
+        );
+        expect(comments).toEqual(sortedComments);
+      });
+  });
+  test("Status 400: responds with an error message when passed a bad article ID", () => {
+    return request(app)
+      .get("/api/articles/notAnID/comments")
+      .expect(400)
+      .then(({ body }) => {
+        expect(body.message).toBe("Invalid input");
+      });
+  });
+  test("Status 404: responds with an error message when passed an unknown article ID", () => {
+    return request(app)
+      .get("/api/articles/999999/comments")
+      .expect(404)
+      .then(({ body }) => {
+        expect(body.message).toBe("ID not found");
+      });
+  });
+  test("Get 200: responds with empty array when article_id is valid but no comments found ", () => {
+    return request(app)
+      .get("/api/articles/2/comments")
+      .expect(200)
+      .then(({ body }) => {
+        const { comments } = body;
+        expect(comments).toBeInstanceOf(Array);
+        expect(comments).toHaveLength(0);
+      });
+  });
+});
