@@ -74,3 +74,23 @@ exports.addComment = (comment, articleId) => {
       return postedComment.rows[0];
     });
 };
+
+exports.updateVotes = (votes, articleId) => {
+  const { inc_votes } = votes;
+
+  return db
+    .query(
+      `
+    UPDATE articles 
+    SET votes = votes + $1 
+    WHERE article_id = $2
+    RETURNING *;`,
+      [inc_votes, articleId]
+    )
+    .then((updatedArticle) => {
+      if (!updatedArticle.rows.length) {
+        return Promise.reject({ message: "ID not found", status: 404 });
+      }
+      return updatedArticle.rows[0];
+    });
+};
