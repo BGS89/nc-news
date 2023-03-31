@@ -360,3 +360,25 @@ describe("/api/articles/:article_id/comments", () => {
       });
   });
 });
+
+describe("/api/comments/:comment_id", () => {
+  test("DELETE 204: should delete comment with given comment_id ", () => {
+    return request(app).delete("/api/comments/1").expect(204);
+  });
+  test("Status 404: passed a comment_id that does not exist", () => {
+    return request(app)
+      .delete("/api/comments/5000000000")
+      .expect(404)
+      .then(({ body }) => {
+        expect(body.message).toBe("Comment not found");
+      });
+  });
+  test("Staus 400: passed a bad comment_id ", () => {
+    return request(app)
+      .delete("/api/comments/notAnId")
+      .expect(400)
+      .then(({ body }) => {
+        expect(body.message).toBe("Invalid input");
+      });
+  });
+});
