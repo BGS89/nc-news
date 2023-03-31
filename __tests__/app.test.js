@@ -362,7 +362,7 @@ describe("/api/articles/:article_id/comments", () => {
 });
 
 describe("/api/comments/:comment_id", () => {
-  test.only("DELETE 204: should delete comment with given comment_id ", () => {
+  test("DELETE 204: should delete comment with given comment_id ", () => {
     return request(app)
       .delete("/api/comments/1")
       .expect(204)
