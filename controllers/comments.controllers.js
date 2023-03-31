@@ -8,7 +8,6 @@ exports.deleteComment = (request, response, next) => {
       response.status(204).send();
     })
     .catch((err) => {
-      console.log(err);
       next(err);
     });
 };
