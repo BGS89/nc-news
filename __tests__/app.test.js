@@ -94,6 +94,80 @@ describe("/api/articles", () => {
         expect(articles).toEqual(sortedArticles);
       });
   });
+  test("GET 200: responds with an array of article objects in descending order", () => {
+    return request(app)
+      .get("/api/articles?order=desc")
+      .expect(200)
+      .then(({ body }) => {
+        const { articles } = body;
+        const sortedArticles = [...articles].sort(
+          (a, b) => b.created_at - a.created_at
+        );
+        expect(articles).toEqual(sortedArticles);
+      });
+  });
+  test("GET 200: responds with an array of article objects in ascending order", () => {
+    return request(app)
+      .get("/api/articles?order=asc")
+      .expect(200)
+      .then(({ body }) => {
+        const { articles } = body;
+        const sortedArticles = [...articles].sort(
+          (a, b) => a.created_at - b.created_at
+        );
+        expect(articles).toEqual(sortedArticles);
+      });
+  });
+  test("GET 200: responds with an array of article objects sorted by given column", () => {
+    return request(app)
+      .get("/api/articles?sort_by=votes")
+      .expect(200)
+      .then(({ body }) => {
+        const { articles } = body;
+        const sortedArticles = [...articles].sort(
+          (a, b) => a.created_at - b.created_at
+        );
+        expect(articles).toEqual(sortedArticles);
+      });
+  });
+  test("GET 200: responds with articles filtered by topic specified in given query ", () => {
+    return request(app)
+      .get("/api/articles?topic=mitch")
+      .expect(200)
+      .then(({ body }) => {
+        const { articles } = body;
+        expect(articles).toBeInstanceOf(Array);
+        expect(articles).toHaveLength(11);
+        articles.forEach((article) => {
+          expect(article).toMatchObject({
+            article_id: expect.any(Number),
+            title: expect.any(String),
+            topic: "mitch",
+            author: expect.any(String),
+            body: expect.any(String),
+            created_at: expect.any(String),
+            votes: expect.any(Number),
+            article_img_url: expect.any(String),
+          });
+        });
+      });
+  });
+  test("Status 400: responds with an error message when passed an invalid sort_by query", () => {
+    return request(app)
+      .get("/api/articles/?sort_by=notAQuery")
+      .expect(400)
+      .then(({ body }) => {
+        expect(body.message).toBe("Invalid sort query");
+      });
+  });
+  test("Status 404: responds with an error message when topic does not exist", () => {
+    return request(app)
+      .get("/api/articles/?topic=notATopic")
+      .expect(404)
+      .then(({ body }) => {
+        expect(body.message).toBe("Topic does not exist");
+      });
+  });
 });
 
 describe("/api/articles/:article_id", () => {

@@ -1,19 +1,57 @@
 const db = require("../db/connection.js");
 const format = require("pg-format");
 
-exports.fetchArticles = () => {
-  return db
-    .query(
-      `SELECT articles.*, COUNT(comments.article_id) AS comment_count
-  FROM articles
-  LEFT JOIN comments ON articles.article_id = comments.article_id
-  GROUP BY articles.article_id
-  ORDER BY created_at DESC
-`
-    )
-    .then((results) => {
-      return results.rows;
-    });
+exports.fetchArticles = (topic, order, sortBy) => {
+  if (!topic && !sortBy) {
+    return db
+      .query(
+        `SELECT articles.*, COUNT(comments.article_id) AS comment_count
+    FROM articles
+    LEFT JOIN comments ON articles.article_id = comments.article_id
+    GROUP BY articles.article_id
+    ORDER BY created_at DESC
+  `
+      )
+      .then((results) => {
+        return results.rows;
+      });
+  }
+
+  const queryValues = [];
+  let queryStr = "SELECT * FROM articles ";
+
+  if (topic) {
+    queryValues.push(topic);
+    queryStr += `WHERE topic = $1`;
+  }
+
+  if (order) {
+    queryStr += `ORDER BY created_at ${order.toUperCase()}`;
+  }
+
+  if (sortBy) {
+    const columns = [
+      "article_id",
+      "title",
+      "topic",
+      "author",
+      "created_at",
+      "votes",
+    ];
+    if (columns.includes(sortBy)) {
+      queryValues.push(sortBy);
+      queryStr += `ORDER BY $1 `;
+    } else {
+      return Promise.reject({ message: "Invalid sort query", status: 400 });
+    }
+  }
+
+  return db.query(queryStr, queryValues).then((results) => {
+    if (!results.rows.length) {
+      return Promise.reject({ message: "Topic does not exist", status: 404 });
+    }
+    return results.rows;
+  });
 };
 
 exports.fetchArticleById = (articleId) => {

@@ -8,10 +8,15 @@ const {
   updateVotes,
 } = require("../models/articles.models.js");
 
-exports.getArticles = (request, response) => {
-  fetchArticles().then((articles) => {
-    response.status(200).send({ articles: articles });
-  });
+exports.getArticles = (request, response, next) => {
+  const { topic, order, sort_by } = request.query;
+  fetchArticles(topic, order, sort_by)
+    .then((articles) => {
+      response.status(200).send({ articles: articles });
+    })
+    .catch((err) => {
+      next(err);
+    });
 };
 
 exports.getArticleById = (request, response, next) => {
