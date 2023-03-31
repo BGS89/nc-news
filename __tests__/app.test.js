@@ -38,7 +38,7 @@ describe("/api/topics", () => {
   });
 });
 
-describe.only("/api/users", () => {
+describe("/api/users", () => {
   test("GET 200: responds with an array of user objects each containing the correct properties ", () => {
     return request(app)
       .get("/api/users")
