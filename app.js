@@ -6,6 +6,7 @@ const {
   getArticleById,
   getArticleComments,
   postArticleComment,
+  patchArticleVotes,
 } = require("./controllers/articles.controllers");
 
 app.use(express.json());
@@ -19,6 +20,8 @@ app.get("/api/articles/:article_id", getArticleById);
 app.get("/api/articles/:article_id/comments", getArticleComments);
 
 app.post("/api/articles/:article_id/comments", postArticleComment);
+
+app.patch("/api/articles/:article_id", patchArticleVotes);
 
 app.use((err, request, response, next) => {
   if (err.code === "22P02") {

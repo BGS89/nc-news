@@ -5,6 +5,7 @@ const {
   fetchArticleComments,
   checkArticleExists,
   addComment,
+  updateVotes,
 } = require("../models/articles.models.js");
 
 exports.getArticles = (request, response) => {
@@ -53,6 +54,18 @@ exports.postArticleComment = (request, response, next) => {
     })
     .then((comment) => {
       response.status(201).send({ comment });
+    })
+    .catch((err) => {
+      next(err);
+    });
+};
+
+exports.patchArticleVotes = (request, response, next) => {
+  const { article_id } = request.params;
+  const votes = request.body;
+  updateVotes(votes, article_id)
+    .then((article) => {
+      response.status(200).send({ article });
     })
     .catch((err) => {
       next(err);

@@ -112,6 +112,92 @@ describe("/api/articles/:article_id", () => {
         expect(body.message).toBe("ID not found");
       });
   });
+  test("PATCH 200: accepts and object with + new votes and return the updated article", () => {
+    return request(app)
+      .patch("/api/articles/1")
+      .send({ inc_votes: 10 })
+      .expect(200)
+      .then(({ body }) => {
+        expect(body.article).toMatchObject({
+          article_id: expect.any(Number),
+          title: "Living in the shadow of a great man",
+          topic: "mitch",
+          author: "butter_bridge",
+          body: "I find this existence challenging",
+          created_at: expect.any(String),
+          votes: 110,
+          article_img_url:
+            "https://images.pexels.com/photos/158651/news-newsletter-newspaper-information-158651.jpeg?w=700&h=700",
+        });
+      });
+  });
+  test("PATCH 200: accepts and object with - votes and return the updated article", () => {
+    return request(app)
+      .patch("/api/articles/1")
+      .send({ inc_votes: -10 })
+      .expect(200)
+      .then(({ body }) => {
+        expect(body.article).toMatchObject({
+          article_id: expect.any(Number),
+          title: "Living in the shadow of a great man",
+          topic: "mitch",
+          author: "butter_bridge",
+          body: "I find this existence challenging",
+          created_at: expect.any(String),
+          votes: 90,
+          article_img_url:
+            "https://images.pexels.com/photos/158651/news-newsletter-newspaper-information-158651.jpeg?w=700&h=700",
+        });
+      });
+  });
+  test("PATCH 200: add a comment to given article comments ignoring extra keys in input body", () => {
+    return request(app)
+      .patch("/api/articles/1")
+      .send({ inc_votes: 5, randomKey: "What am i doing here?" })
+      .expect(200)
+      .then(({ body }) => {
+        expect(body.article).toMatchObject({
+          article_id: expect.any(Number),
+          title: "Living in the shadow of a great man",
+          topic: "mitch",
+          author: "butter_bridge",
+          body: "I find this existence challenging",
+          created_at: expect.any(String),
+          votes: 105,
+          article_img_url:
+            "https://images.pexels.com/photos/158651/news-newsletter-newspaper-information-158651.jpeg?w=700&h=700",
+        });
+      });
+  });
+  test("Status 400: responds with an error message when missing required input information", () => {
+    return request(app)
+      .patch("/api/articles/1")
+      .send({
+        not_votes: "These are not votes",
+      })
+      .expect(400)
+      .then(({ body }) => {
+        expect(body.message).toBe("Missing required information");
+      });
+  });
+  test("Status 404: responds with an error message when passed an unknown article ID", () => {
+    return request(app)
+      .patch("/api/articles/999")
+      .send({ inc_votes: 20 })
+      .expect(404)
+      .then(({ body }) => {
+        expect(body.message).toBe("ID not found");
+      });
+  });
+  test("Status 400: responds with an error message when passed a bad article ID", () => {
+    return request(app)
+      .patch("/api/articles/notAnID")
+      .send({ inc_votes: 1 })
+      .expect(400)
+      .then(({ body }) => {
+        expect(body.message).toBe("Invalid input");
+      });
+  });
 });
 
 describe("/api/articles/:article_id/comments", () => {
@@ -195,7 +281,7 @@ describe("/api/articles/:article_id/comments", () => {
         });
       });
   });
-  test("Post 201: add a comment to given article comments ignoring extra keys in input body", () => {
+  test("POST 201: add a comment to given article comments ignoring extra keys in input body", () => {
     return request(app)
       .post("/api/articles/1/comments")
       .send({
@@ -215,7 +301,7 @@ describe("/api/articles/:article_id/comments", () => {
         });
       });
   });
-  test("Status 40: reposnds with an error message when missing required information", () => {
+  test("Status 400: reposnds with an error message when missing required information", () => {
     return request(app)
       .post("/api/articles/1/comments")
       .send({
