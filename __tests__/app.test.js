@@ -112,26 +112,26 @@ describe("/api/articles/:article_id", () => {
         expect(body.message).toBe("ID not found");
       });
   });
-  test("PATCH 200: accepts and object with + new votes and return the updated article", () => {
+  test("PATCH 200: returns an article with vote count updated when passed a postive inc_votes number", () => {
     return request(app)
       .patch("/api/articles/1")
       .send({ inc_votes: 10 })
       .expect(200)
       .then(({ body }) => {
         expect(body.article).toMatchObject({
-          article_id: expect.any(Number),
+          article_id: 1,
           title: "Living in the shadow of a great man",
           topic: "mitch",
           author: "butter_bridge",
           body: "I find this existence challenging",
-          created_at: expect.any(String),
+          created_at: "2020-07-09T20:11:00.000Z",
           votes: 110,
           article_img_url:
             "https://images.pexels.com/photos/158651/news-newsletter-newspaper-information-158651.jpeg?w=700&h=700",
         });
       });
   });
-  test("PATCH 200: accepts and object with - votes and return the updated article", () => {
+  test("PATCH 200: returns an article with vote count updated when passed a negative in_votes number", () => {
     return request(app)
       .patch("/api/articles/1")
       .send({ inc_votes: -10 })
@@ -178,6 +178,17 @@ describe("/api/articles/:article_id", () => {
       .expect(400)
       .then(({ body }) => {
         expect(body.message).toBe("Missing required information");
+      });
+  });
+  test("Status 400: responds with an error message when passed invalid data type", () => {
+    return request(app)
+      .patch("/api/articles/1")
+      .send({
+        inc_votes: "These are not votes",
+      })
+      .expect(400)
+      .then(({ body }) => {
+        expect(body.message).toBe("Invalid input");
       });
   });
   test("Status 404: responds with an error message when passed an unknown article ID", () => {
