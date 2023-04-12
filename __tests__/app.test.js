@@ -124,9 +124,7 @@ describe("/api/articles", () => {
       .expect(200)
       .then(({ body }) => {
         const { articles } = body;
-        const sortedArticles = [...articles].sort(
-          (a, b) => a.created_at - b.created_at
-        );
+        const sortedArticles = [...articles].sort((a, b) => b.votes - a.votes);
         expect(articles).toEqual(sortedArticles);
       });
   });
@@ -166,6 +164,14 @@ describe("/api/articles", () => {
       .expect(404)
       .then(({ body }) => {
         expect(body.message).toBe("Topic does not exist");
+      });
+  });
+  test("Status 400: responds with an error message when passed an invalid order query", () => {
+    return request(app)
+      .get("/api/articles/?order=notAQuery")
+      .expect(400)
+      .then(({ body }) => {
+        expect(body.message).toBe("Invalid order query");
       });
   });
 });

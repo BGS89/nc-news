@@ -2,6 +2,10 @@ const db = require("../db/connection.js");
 const format = require("pg-format");
 
 exports.fetchArticles = (topic, order, sortBy) => {
+  if (order && order !== "asc" && order !== "desc") {
+    return Promise.reject({ message: "Invalid order query", status: 400 });
+  }
+
   if (!topic && !sortBy) {
     return db
       .query(
